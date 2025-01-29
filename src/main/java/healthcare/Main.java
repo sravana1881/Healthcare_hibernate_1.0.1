@@ -53,6 +53,7 @@ public class Main {
         System.out.println("2. Read Doctor");
         System.out.println("3. Update Doctor");
         System.out.println("4. Delete Doctor");
+        System.out.println("5. List All Doctors");
 
 
         int choice = scanner.nextInt();
@@ -117,6 +118,12 @@ public class Main {
                     doctorService.deleteDoctor(doctortId);  // Use service here
                     System.out.println("Doctor deleted successfully.");
                     break;
+                case 5:
+                    System.out.println("Listing All Doctors:");
+                    for (Doctor d : doctorService.getAllDoctors()) {
+                    System.out.println(d);
+                    }
+                    break;
                 default:
                     System.out.println("Invalid choice.");
             }
@@ -136,6 +143,7 @@ public class Main {
                 System.out.println("2. Read Patient");
                 System.out.println("3. Update Patient");
                 System.out.println("4. Delete Patient");
+                System.out.println("5. List all patients");
 
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -203,6 +211,12 @@ public class Main {
                             patientService.deletePatient(patientId);  // Use service here
                             System.out.println("Patient deleted successfully.");
                             break;
+                        case 5:
+                           System.out.println("Listing All Patients:");
+                           for (Patient p : patientService.getAllPatients()) {
+                           System.out.println(p);
+                            }
+                          break;
                         default:
                             System.out.println("Invalid choice.");
                     }
@@ -221,6 +235,7 @@ public class Main {
                 System.out.println("2. Read Appointment");
                 System.out.println("3. Update Appointment");
                 System.out.println("4. Delete Appointment");
+                System.out.println("5. List All Appointments");
 
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -294,6 +309,12 @@ public class Main {
                             appointmentId = scanner.nextInt();
                             appointmentService.deleteAppointment(appointmentId);  // Use service here
                             System.out.println("Appointment deleted successfully.");
+                            break;
+                        case 5:
+                            System.out.println("Listing All Appointments:");
+                            for (Appointment a : appointmentService.getAllAppointments()) {
+                            System.out.println(a);
+                           }
                             break;
                         default:
                             System.out.println("Invalid choice.");
