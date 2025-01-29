@@ -1,9 +1,17 @@
 package healthcare.model;
 
 import jakarta.persistence.*;
+import healthcare.model.Appointment;
+import lombok.ToString;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Patients")
+@ToString(exclude = "doctors")
+
 public class Patient {
 
     @Id
@@ -25,6 +33,13 @@ public class Patient {
 
     @Column(name = "PhoneNumber")
     private String phoneNumber;
+
+    @OneToMany( mappedBy ="patient" ,cascade=CascadeType.ALL)
+    Set<Appointment> appointments= new HashSet<>();
+
+    @ManyToMany(mappedBy = "patients")
+    Set<Doctor> doctors= new HashSet<>();
+
 
 
     public Patient() {
@@ -99,4 +114,27 @@ public class Patient {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
+    @Override
+
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Patient patient = (Patient) o;
+
+        return patientId == patient.patientId;
+
+    }
+
+
+
+    @Override
+
+    public int hashCode() {
+        return Objects.hash(patientId);
+
+    }
+
 }
