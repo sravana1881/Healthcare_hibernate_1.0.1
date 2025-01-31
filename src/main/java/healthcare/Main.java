@@ -19,14 +19,14 @@ public class Main {
     public static void main(String[] args) {
 
 
-       Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("1. Doctor");
-        System.out.println("2. Patient");
-        System.out.println("3. Appointment");
+            System.out.println("1. Doctor");
+            System.out.println("2. Patient");
+            System.out.println("3. Appointment");
 
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
             if (choice == 1) {
                 ManageDoctors();
@@ -40,6 +40,7 @@ public class Main {
             }
 
             System.out.println("Exiting Healthcare Management System.");
+
     }
 
     public static void ManageDoctors() {

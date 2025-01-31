@@ -77,4 +77,15 @@ public class Appointment {
         return Objects.hash(appointmentId);
 
     }
+
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "appointmentId=" + appointmentId +
+                ", patientId=" +  (patient != null ? patient.getPatientId() : "N/A") +
+                ", doctorId=" + (doctor != null ? doctor.getDoctorId() : "N/A") +
+                ", appointmentDate='" + appointmentDate + '\'' +
+                ", notes='" + notes ;
+
+    }
 }
