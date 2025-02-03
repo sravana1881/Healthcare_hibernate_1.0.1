@@ -1,8 +1,10 @@
 package healthcare.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -10,7 +12,10 @@ import java.util.Set;
 
 @Entity
 @Table(name="Doctors")
-@ToString(exclude = { "patients", "appointments"})
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(exclude = { "patients", "appointments", "offices"})
 public class Doctor {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -25,11 +30,11 @@ public class Doctor {
     @Column(name="Email")
     String email;
 
-    @OneToMany(mappedBy = "doctor" , cascade= CascadeType.ALL)
+    @OneToMany(mappedBy = "doctor" , cascade= CascadeType.ALL, fetch = FetchType.LAZY)
     Set<Appointment> appointments= new HashSet<Appointment>();
 
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JoinTable(
            name ="doctor_patient",
             joinColumns = @JoinColumn(name="DoctorID"),
@@ -37,56 +42,14 @@ public class Doctor {
     )
     Set<Patient> patients=new HashSet<>();
 
-
-
-    public Doctor() {
-    }
+    @OneToOne(mappedBy = "doctor" , cascade= CascadeType.ALL)
+    Office office;
 
     public Doctor(int doctorId, String firstName, String lastName, String specialty, String email) {
         this.doctorId = doctorId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.specialty = specialty;
-        this.email = email;
-    }
-
-    public int getDoctorId() {
-        return doctorId;
-    }
-
-    public void setDoctorId(int doctorId) {
-        this.doctorId = doctorId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getSpecialty() {
-        return specialty;
-    }
-
-    public void setSpecialty(String specialty) {
-        this.specialty = specialty;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -100,8 +63,8 @@ public class Doctor {
                 ", email='" + email + '\'' +
                 '}';
     }
-    @Override
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -109,11 +72,8 @@ public class Doctor {
         return doctorId == doctor.doctorId;
     }
 
-
-
     @Override
     public int hashCode() {
         return Objects.hash(doctorId);
-
     }
 }

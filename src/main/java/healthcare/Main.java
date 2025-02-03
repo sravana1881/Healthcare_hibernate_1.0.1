@@ -1,12 +1,15 @@
 package healthcare;
 
 import healthcare.model.Appointment;
+import healthcare.model.Office;
 import healthcare.model.Patient;
 import healthcare.model.Doctor;
 import healthcare.repository.AppointmentRepositoryImpl;
 import healthcare.repository.DoctorRepositoryImpl;
+import healthcare.repository.OfficeRepositoryImpl;
 import healthcare.service.AppointmentService;
 import healthcare.service.DoctorService;
+import healthcare.service.OfficeService;
 import healthcare.service.PatientService;
 import healthcare.repository.PatientRepositoryImpl;
 import org.hibernate.SessionFactory;
@@ -24,6 +27,7 @@ public class Main {
             System.out.println("1. Doctor");
             System.out.println("2. Patient");
             System.out.println("3. Appointment");
+            System.out.println("4.Office");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -34,13 +38,14 @@ public class Main {
                 ManagePatients();
             } else if (choice == 3) {
                 ManageAppointments();
-            } else {
+            } else if (choice == 4) {
+                ManageOffices();
 
+            }else {
                 System.out.println("Invalid choice ");
-            }
-
+        }
             System.out.println("Exiting Healthcare Management System.");
-
+            scanner.close();
     }
 
     public static void ManageDoctors() {
@@ -228,8 +233,16 @@ public class Main {
             }
             public static void ManageAppointments() {
                 SessionFactory sessionFactory = new Configuration().configure("patient.cfg.xml").buildSessionFactory();
+
                 AppointmentRepositoryImpl appointmentRepository = new AppointmentRepositoryImpl(sessionFactory);
                 AppointmentService appointmentService = new AppointmentService(appointmentRepository);
+
+                PatientRepositoryImpl patientRepository = new PatientRepositoryImpl(sessionFactory);
+                PatientService patientService = new PatientService(patientRepository);
+
+                DoctorRepositoryImpl doctorRepository = new DoctorRepositoryImpl(sessionFactory);
+                DoctorService doctorService = new DoctorService(doctorRepository);
+
                 Scanner scanner = new Scanner(System.in);
 
                 System.out.println("1. Create Appointment");
@@ -262,12 +275,19 @@ public class Main {
                             newAppointment.setNotes(scanner.nextLine());
                             appointmentService.createAppointment(newAppointment);  // Use service here
                             System.out.println("Appointment created successfully.");
+
+                            // Now, add patient to doctor and doctor to patient
+                            doctorService.addPatientToDoctor(doctor.getDoctorId(), patient);
+                            patientService.addDoctorToPatient(patient.getPatientId(), doctor);
+
+                            System.out.println("Patient added to doctor and doctor added to patient successfully.");
                             break;
                         case 2:
                             // Application calls the service layer, not the repository directly
                             System.out.print("Enter Appointment ID: ");
                             int appointmentId = scanner.nextInt();
-                            Appointment appointment = appointmentService.getAppointmentById(appointmentId);  // Use service here
+                            Appointment appointment = appointmentService.getAppointmentById(appointmentId);// Use service here
+
                             if (appointment != null) {
                                 System.out.println("Patient ID: " + appointment.getPatient().getPatientId());
                                 System.out.println("Doctor ID " + appointment.getDoctor().getDoctorId());
@@ -298,6 +318,16 @@ public class Main {
                                 appointment.setAppointmentDate(scanner.nextLine());
                                 System.out.print("Enter Notes: ");
                                 appointment.setNotes(scanner.nextLine());
+
+                                // Check if there are any other appointments for the original patient and doctor
+                                Doctor originalDoctor = appointment.getDoctor();
+                                Patient originalPatient = appointment.getPatient();
+                                if (!appointmentService.hasOtherAppointmentsBetween(originalDoctor.getDoctorId(), originalPatient.getPatientId())) {
+                                    // Remove the patient from the doctor and vice versa
+                                    doctorService.removePatientFromDoctor(originalDoctor.getDoctorId(), originalPatient);
+                                    patientService.removeDoctorFromPatient(originalPatient.getPatientId(), originalDoctor);
+                                }
+
                                 appointmentService.updateAppointment(appointment);
                                 System.out.println("Appointment updated successfully.");
                             } else {
@@ -308,6 +338,21 @@ public class Main {
                             // Application calls the service layer, not the repository directly
                             System.out.print("Enter Appointment ID: ");
                             appointmentId = scanner.nextInt();
+
+                            // Retrieve the appointment object from the service layer (not repository directly)
+                             appointment = appointmentService.getAppointmentById(appointmentId);
+
+                            if (appointment == null) {
+                                System.out.println("Appointment not found.");
+                                break;
+                            }
+                            Doctor doctorToCheck = appointment.getDoctor();
+                            Patient patientToCheck=appointment.getPatient();
+                            if (!appointmentService.hasOtherAppointmentsBetween(
+                                    doctorToCheck.getDoctorId(), patientToCheck.getPatientId())) {
+                                doctorService.removePatientFromDoctor(doctorToCheck.getDoctorId(), patientToCheck);
+                                patientService.removeDoctorFromPatient(patientToCheck.getPatientId(), doctorToCheck);
+                            }
                             appointmentService.deleteAppointment(appointmentId);  // Use service here
                             System.out.println("Appointment deleted successfully.");
                             break;
@@ -326,7 +371,84 @@ public class Main {
                 }
             }
 
-    }
+            public static void ManageOffices(){
+                SessionFactory sessionFactory = new Configuration().configure("patient.cfg.xml").buildSessionFactory();
+                OfficeRepositoryImpl officeRepository = new OfficeRepositoryImpl(sessionFactory);
+                OfficeService officeService = new OfficeService(officeRepository);
+
+                Scanner scanner = new Scanner(System.in);
+
+                System.out.println("1. Create an Office");
+                System.out.println("2. Get Office Details");
+                System.out.println("3. Update Office");
+                System.out.println("4. Delete Office");
+                System.out.println("5. List All Offices");
+
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        Office newOffice = new Office();
+                        System.out.print("Enter location: ");
+                        newOffice.setLocation(scanner.nextLine());
+                        System.out.print("Enter phone: ");
+                        newOffice.setPhone(scanner.nextLine());
+                        System.out.print("Enter doctor ID: ");
+                        Doctor doctor = new Doctor();
+                        doctor.setDoctorId(scanner.nextInt());
+                        newOffice.setDoctor(doctor);
+                        officeService.createOffice(newOffice);
+                        System.out.println("Office created successfully.");
+                        break;
+                    case 2:
+                        System.out.print("Enter Office ID: ");
+                        int officeId = scanner.nextInt();
+                        Office office = officeService.getOfficeById(officeId);
+                        if (office != null) {
+                            System.out.println("Office ID: " + office.getOfficeId());
+                            System.out.println("Location: " + office.getLocation());
+                            System.out.println("Phone: " + office.getPhone());
+                            System.out.println("Doctor ID: " + office.getDoctor().getDoctorId());
+                        } else {
+                            System.out.println("Office not found.");
+                        }
+                        break;
+                    case 3:
+                        System.out.print("Enter Office ID: ");
+                        officeId = scanner.nextInt();
+                        scanner.nextLine();  // consume newline
+                        office = officeService.getOfficeById(officeId);
+                        if (office != null) {
+                            System.out.print("Enter new location: ");
+                            office.setLocation(scanner.nextLine());
+                            System.out.print("Enter new phone: ");
+                            office.setPhone(scanner.nextLine());
+                            officeService.updateOffice(office);
+                            System.out.println("Office updated successfully.");
+                        } else {
+                            System.out.println("Office not found.");
+                        }
+                        break;
+                    case 4:
+                        System.out.print("Enter Office ID: ");
+                        officeId = scanner.nextInt();
+                        officeService.deleteOffice(officeId);
+                        System.out.println("Office deleted successfully.");
+                        break;
+                    case 5:
+                        System.out.println("Listing All Offices:");
+                        for (Office o : officeService.getAllOffices()) {
+                            System.out.println(o);
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid choice.");
+                }
+            }
+}
+
+
 
 
 

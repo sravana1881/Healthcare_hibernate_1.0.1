@@ -36,35 +36,7 @@ public class Appointment {
     public Appointment() {
     }
 
-
-
-    public int getAppointmentId() {
-        return appointmentId;
-    }
-
-    public void setAppointmentId(int appointmentId) {
-        this.appointmentId = appointmentId;
-    }
-
-    public String getAppointmentDate() {
-        return appointmentDate;
-    }
-
-    public void setAppointmentDate(String appointmentDate) {
-        this.appointmentDate = appointmentDate;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-
     @Override
-
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -75,7 +47,6 @@ public class Appointment {
     @Override
     public int hashCode() {
         return Objects.hash(appointmentId);
-
     }
 
     @Override
@@ -85,7 +56,7 @@ public class Appointment {
                 ", patientId=" +  (patient != null ? patient.getPatientId() : "N/A") +
                 ", doctorId=" + (doctor != null ? doctor.getDoctorId() : "N/A") +
                 ", appointmentDate='" + appointmentDate + '\'' +
-                ", notes='" + notes ;
-
+                ", notes='" + notes  +
+                '}';
     }
 }
