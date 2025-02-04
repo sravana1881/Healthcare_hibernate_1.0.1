@@ -41,7 +41,14 @@ public class OfficeRepositoryImpl {
             Transaction transaction = session.beginTransaction();
             Office office = session.get(Office.class, officeId);
             if (office != null) {
-                session.delete(office);
+                if (office.getDoctor() != null) {
+                    office.getDoctor().setOffice(null); // Break the association
+                    session.merge(office.getDoctor()); // Persist the change in the database
+                }
+
+                 session.remove(office);
+
+                //session.delete(office);
             }
             transaction.commit();
         }

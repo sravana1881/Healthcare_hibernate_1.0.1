@@ -328,6 +328,9 @@ public class Main {
                                     patientService.removeDoctorFromPatient(originalPatient.getPatientId(), originalDoctor);
                                 }
 
+                                doctorService.addPatientToDoctor(appointment.getDoctor().getDoctorId(), appointment.getPatient());
+                                patientService.addDoctorToPatient(appointment.getPatient().getPatientId(), appointment.getDoctor());
+
                                 appointmentService.updateAppointment(appointment);
                                 System.out.println("Appointment updated successfully.");
                             } else {
@@ -424,6 +427,9 @@ public class Main {
                             office.setLocation(scanner.nextLine());
                             System.out.print("Enter new phone: ");
                             office.setPhone(scanner.nextLine());
+                            System.out.print("Enter Doctor ID: ");
+                            office.getDoctor().setDoctorId(scanner.nextInt());
+                            scanner.nextLine();
                             officeService.updateOffice(office);
                             System.out.println("Office updated successfully.");
                         } else {
@@ -433,6 +439,7 @@ public class Main {
                     case 4:
                         System.out.print("Enter Office ID: ");
                         officeId = scanner.nextInt();
+
                         officeService.deleteOffice(officeId);
                         System.out.println("Office deleted successfully.");
                         break;
